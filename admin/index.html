@@ -379,6 +379,13 @@ header {
       <input type="tel" id="c-phone" placeholder="+15617824649">
     </div>
     <div class="field">
+      <label>Call via</label>
+      <select id="c-call-via">
+        <option value="whatsapp">📱 WhatsApp</option>
+        <option value="phone">📞 Regular Phone</option>
+      </select>
+    </div>
+    <div class="field">
       <label>Button Position</label>
       <select id="c-order">
         <option value="1">1 — Top left</option>
@@ -643,6 +650,7 @@ function openAddContact() {
   document.getElementById('c-rel').value = '';
   document.getElementById('c-phone').value = '';
   document.getElementById('c-order').value = (contacts.length + 1).toString();
+  document.getElementById('c-call-via').value = 'whatsapp';
   document.getElementById('photo-preview').style.display = 'none';
   document.getElementById('photo-placeholder').style.display = 'flex';
   document.getElementById('delete-contact-btn').style.display = 'none';
@@ -657,6 +665,7 @@ function openEditContact(id) {
   document.getElementById('c-rel').value = editingContact.relationship || '';
   document.getElementById('c-phone').value = editingContact.phone;
   document.getElementById('c-order').value = editingContact.display_order;
+  document.getElementById('c-call-via').value = editingContact.call_via || 'whatsapp';
   document.getElementById('delete-contact-btn').style.display = 'inline-block';
 
   if (editingContact.photo_url) {
@@ -709,6 +718,7 @@ async function saveContact() {
     relationship: document.getElementById('c-rel').value.trim() || null,
     phone: document.getElementById('c-phone').value.trim(),
     display_order: parseInt(document.getElementById('c-order').value),
+    call_via: document.getElementById('c-call-via').value,
     photo_url: uploadedPhotoUrl || null,
     updated_at: new Date().toISOString()
   };

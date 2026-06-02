@@ -432,7 +432,12 @@ function callContact(contact) {
   speak(`Calling ${contact.name}`);
 
   setTimeout(() => {
-    window.location.href = `tel:${contact.phone}`;
+    const phone = contact.phone.replace(/\D/g, '');
+    if (contact.call_via === 'whatsapp') {
+      window.location.href = `https://wa.me/${phone}`;
+    } else {
+      window.location.href = `tel:${contact.phone}`;
+    }
   }, 1000);
 
   // Auto-return home after 45s
