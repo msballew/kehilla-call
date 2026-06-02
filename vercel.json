@@ -1,7 +1,11 @@
 {
-  "rewrites": [
-    { "source": "/admin/(.*)", "destination": "/admin/$1" },
-    { "source": "/pwa/(.*)", "destination": "/pwa/$1" },
-    { "source": "/", "destination": "/admin/index.html" }
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "routes": [
+    { "src": "/", "dest": "/admin/index.html" },
+    { "src": "/admin", "dest": "/admin/index.html" },
+    { "src": "/admin/(.*)", "dest": "/admin/$1" },
+    { "src": "/pwa", "dest": "/pwa/index.html" },
+    { "src": "/pwa/(.*)", "dest": "/pwa/$1" }
   ]
 }
