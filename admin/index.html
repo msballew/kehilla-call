@@ -367,14 +367,14 @@ header {
   <div class="modal">
     <div class="modal-title" id="contact-modal-title">Add Contact</div>
 
-    <div class="photo-upload" onclick="document.getElementById('photo-input').click()">
+    <label class="photo-upload" for="photo-input">
       <img id="photo-preview" src="" style="display:none">
       <div id="photo-placeholder">
         <div style="font-size:28px">📷</div>
         <div class="photo-upload-label">Add Photo</div>
       </div>
       <input type="file" id="photo-input" accept="image/*" onchange="previewPhoto(this)">
-    </div>
+    </label>
 
     <div class="field">
       <label>Name (as shown on button)</label>
@@ -710,7 +710,7 @@ async function uploadPhoto(file) {
     method: 'POST',
     headers: {
       'apikey': SUPABASE_ANON,
-      'Authorization': `Bearer ${session.access_token}`,
+      'Authorization': `Bearer ${SUPABASE_ANON}`,
       'Content-Type': file.type
     },
     body: file
