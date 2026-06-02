@@ -478,11 +478,13 @@ async function signIn() {
   if (res.error) { setMsg(res.error.message,'error'); return; }
 
   session = res;
+  localStorage.setItem('kc_session', JSON.stringify(session));
   await loadDashboard();
 }
 
 function signOut() {
   session = null; familyId = null;
+  localStorage.removeItem('kc_session');
   document.getElementById('main-screen').style.display = 'none';
   document.getElementById('auth-screen').style.display = 'flex';
   switchTab('login');
@@ -490,11 +492,17 @@ function signOut() {
 
 // ── LOAD DASHBOARD ────────────────────────────────────────────────────────────
 async function loadDashboard() {
-  // Get family record
   const fam = await sbFetch('families?select=*&limit=1');
   if (fam && fam[0]) {
     familyId = fam[0].id;
-    document.getElementById('header-name').textContent = fam[0].full_name;
+    document.getElementById('header-name').textContent = fam[0].full_name || fam[0].email || '';
+  } else {
+    // Family record missing — create it now
+    const email = session?.user?.email || '';
+    const created = await sbFetch('families', 'POST', { email, full_name: '' });
+    if (created && created[0]) {
+      familyId = created[0].id;
+    }
   }
 
   await loadLovedOnes();
