@@ -243,7 +243,10 @@ header {
       </div>
       <div class="field">
         <label>Password</label>
-        <input type="password" id="login-password" placeholder="••••••••">
+        <div style="position:relative">
+          <input type="password" id="login-password" placeholder="••••••••" style="width:100%;padding-right:40px">
+          <span onclick="togglePw('login-password',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;color:var(--soft)">👁</span>
+        </div>
       </div>
       <button class="btn btn-gold" style="width:100%" onclick="signIn()">Sign In</button>
     </div>
@@ -259,7 +262,10 @@ header {
       </div>
       <div class="field">
         <label>Password</label>
-        <input type="password" id="signup-password" placeholder="Min 6 characters">
+        <div style="position:relative">
+          <input type="password" id="signup-password" placeholder="Min 6 characters" style="width:100%;padding-right:40px">
+          <span onclick="togglePw('signup-password',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;color:var(--soft)">👁</span>
+        </div>
       </div>
       <button class="btn btn-burgundy" style="width:100%" onclick="signUp()">Create Account — 30 Days Free</button>
     </div>
@@ -430,6 +436,12 @@ async function sbFetch(path, method='GET', body=null, token=null) {
   });
   if (r.status === 204) return null;
   return r.json();
+}
+
+function togglePw(id, el) {
+  const input = document.getElementById(id);
+  if (input.type === 'password') { input.type = 'text'; el.textContent = '🙈'; }
+  else { input.type = 'password'; el.textContent = '👁'; }
 }
 
 // ── AUTH TAB ──────────────────────────────────────────────────────────────────
