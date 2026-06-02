@@ -488,8 +488,8 @@ async function signUp() {
 
   session = res.session || res;
   if (session?.access_token) {
-    // Create family record
-    await sbFetch('families', 'POST', { email, full_name: name }, session.access_token);
+    const user_id = session?.user?.id || '';
+    await sbFetch('families', 'POST', { email, full_name: name, user_id }, session.access_token);
     await loadDashboard();
   } else {
     setMsg('Check your email to confirm your account.','success');
@@ -528,7 +528,8 @@ async function loadDashboard() {
   } else {
     // Family record missing — create it now
     const email = session?.user?.email || '';
-    const created = await sbFetch('families', 'POST', { email, full_name: '' });
+    const user_id = session?.user?.id || '';
+    const created = await sbFetch('families', 'POST', { email, full_name: '', user_id });
     if (created && created[0]) {
       familyId = created[0].id;
     }
