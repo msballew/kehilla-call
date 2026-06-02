@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kehilla Call — Family Dashboard</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f0e8;
+  --card: #ffffff;
+  --dark: #1a0f00;
+  --gold: #c9982e;
+  --burgundy: #6b1a2a;
+  --soft: #7a6a55;
+  --border: #e0d5c5;
+  --green: #2e7d32;
+  --red: #c62828;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  min-height: 100vh;
+}
+
+header {
+  background: var(--dark);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  color: var(--gold);
+  font-weight: normal;
+}
+
+.logo span { color: white; }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+.btn:hover { opacity: 0.85; }
+.btn-gold { background: var(--gold); color: white; }
+.btn-burgundy { background: var(--burgundy); color: white; }
+.btn-outline { background: transparent; border: 1.5px solid var(--gold); color: var(--gold); }
+.btn-sm { padding: 6px 14px; font-size: 13px; }
+.btn-danger { background: var(--red); color: white; }
+.btn-green { background: var(--green); color: white; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 28px 20px; }
+
+/* AUTH */
+#auth-screen { 
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: var(--dark);
+}
+
+.auth-card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.auth-logo {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.auth-sub { color: var(--soft); font-size: 14px; margin-bottom: 28px; }
+
+.field { text-align: left; margin-bottom: 16px; }
+.field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--soft); }
+.field input, .field select {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  color: var(--dark);
+  background: white;
+}
+.field input:focus, .field select:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.auth-tabs { display: flex; gap: 0; margin-bottom: 24px; border-radius: 8px; overflow: hidden; border: 1.5px solid var(--border); }
+.auth-tab { flex: 1; padding: 10px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--soft); background: white; border: none; }
+.auth-tab.active { background: var(--gold); color: white; }
+
+.auth-msg { font-size: 13px; margin-top: 12px; color: var(--soft); }
+.auth-msg.error { color: var(--red); }
+.auth-msg.success { color: var(--green); }
+
+/* MAIN */
+#main-screen { display: none; }
+
+.section { background: var(--card); border-radius: 12px; padding: 24px; margin-bottom: 20px; border: 1px solid var(--border); }
+.section-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+
+/* LOVED ONES */
+.loved-one-card {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.loved-one-card:hover { border-color: var(--gold); }
+.loved-one-card.selected { border-color: var(--gold); background: #fdf8f0; }
+.lo-name { font-size: 17px; font-weight: 700; }
+.lo-detail { font-size: 13px; color: var(--soft); margin-top: 4px; }
+.lo-link { font-size: 12px; color: var(--gold); margin-top: 6px; word-break: break-all; }
+
+/* CONTACTS */
+.contact-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.contact-row:last-child { border-bottom: none; }
+
+.contact-thumb {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: #f5ece0;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.contact-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+.contact-info { flex: 1; }
+.contact-info .cn { font-size: 15px; font-weight: 600; }
+.contact-info .cr { font-size: 12px; color: var(--gold); }
+.contact-info .cp { font-size: 12px; color: var(--soft); }
+
+.drag-handle { color: var(--border); cursor: grab; font-size: 20px; padding: 0 4px; }
+
+/* MODAL */
+.modal-bg {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+/* PHOTO UPLOAD */
+.photo-upload {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  border: 2px dashed var(--gold);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  background: #fdf8f0;
+  margin: 0 auto 16px;
+  position: relative;
+}
+.photo-upload img { width: 100%; height: 100%; object-fit: cover; }
+.photo-upload-label { font-size: 11px; color: var(--soft); text-align: center; }
+.photo-upload input[type=file] { display: none; }
+
+.device-link-box {
+  background: #fdf8f0;
+  border: 1.5px solid var(--gold);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 13px;
+  word-break: break-all;
+  color: var(--dark);
+  margin-top: 8px;
+}
+
+.tag { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+.tag-trial { background: #fff3cd; color: #856404; }
+.tag-active { background: #d4edda; color: #155724; }
+
+.empty { color: var(--soft); text-align: center; padding: 24px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">Kehilla Call</div>
+    <div class="auth-sub">Family Dashboard</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchTab('signup')">Create Account</button>
+    </div>
+
+    <div id="login-form">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="your@email.com">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••">
+      </div>
+      <button class="btn btn-gold" style="width:100%" onclick="signIn()">Sign In</button>
+    </div>
+
+    <div id="signup-form" style="display:none">
+      <div class="field">
+        <label>Your Full Name</label>
+        <input type="text" id="signup-name" placeholder="Jane Smith">
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="signup-email" placeholder="your@email.com">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="signup-password" placeholder="Min 6 characters">
+      </div>
+      <button class="btn btn-burgundy" style="width:100%" onclick="signUp()">Create Account — 30 Days Free</button>
+    </div>
+
+    <div id="auth-msg" class="auth-msg"></div>
+  </div>
+</div>
+
+<!-- MAIN DASHBOARD -->
+<div id="main-screen">
+  <header>
+    <div class="logo">Kehilla <span>Call</span></div>
+    <div class="header-right">
+      <span id="header-name" style="color:#ccc;font-size:14px"></span>
+      <button class="btn btn-outline btn-sm" onclick="signOut()">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- LOVED ONES -->
+    <div class="section">
+      <div class="section-title">
+        <span>Your Loved Ones</span>
+        <button class="btn btn-gold btn-sm" onclick="openAddLO()">+ Add Person</button>
+      </div>
+      <div id="loved-ones-list"><div class="empty">No one added yet. Click "+ Add Person" to get started.</div></div>
+    </div>
+
+    <!-- CONTACTS (shown when a loved one is selected) -->
+    <div class="section" id="contacts-section" style="display:none">
+      <div class="section-title">
+        <span id="contacts-title">Contacts</span>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline btn-sm" onclick="openContactPicker()">📱 From Contacts</button>
+          <button class="btn btn-gold btn-sm" onclick="openAddContact()">+ Add Contact</button>
+        </div>
+      </div>
+      <div id="contacts-list"></div>
+
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:600;color:var(--soft);margin-bottom:8px">DEVICE LINK — Send this to install on their phone</div>
+        <div class="device-link-box" id="device-link-box"></div>
+        <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="copyDeviceLink()">Copy Link</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD / EDIT LOVED ONE MODAL -->
+<div class="modal-bg" id="lo-modal">
+  <div class="modal">
+    <div class="modal-title" id="lo-modal-title">Add a Loved One</div>
+    <div class="field">
+      <label>Their First Name</label>
+      <input type="text" id="lo-name" placeholder="Rose">
+    </div>
+    <div class="field">
+      <label>Greeting Name (optional — defaults to first name)</label>
+      <input type="text" id="lo-greeting" placeholder="Bubbie">
+    </div>
+    <div class="field">
+      <label>Number of call buttons (2–9)</label>
+      <select id="lo-buttons">
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6" selected>6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Game app package name (optional — e.g. com.microsoft.solitaire)</label>
+      <input type="text" id="lo-game" placeholder="Leave blank if unknown">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('lo-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveLO()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD / EDIT CONTACT MODAL -->
+<div class="modal-bg" id="contact-modal">
+  <div class="modal">
+    <div class="modal-title" id="contact-modal-title">Add Contact</div>
+
+    <div class="photo-upload" onclick="document.getElementById('photo-input').click()">
+      <img id="photo-preview" src="" style="display:none">
+      <div id="photo-placeholder">
+        <div style="font-size:28px">📷</div>
+        <div class="photo-upload-label">Add Photo</div>
+      </div>
+      <input type="file" id="photo-input" accept="image/*" onchange="previewPhoto(this)">
+    </div>
+
+    <div class="field">
+      <label>Name (as shown on button)</label>
+      <input type="text" id="c-name" placeholder="Michael">
+    </div>
+    <div class="field">
+      <label>Relationship (shown under name)</label>
+      <input type="text" id="c-rel" placeholder="Your Son">
+    </div>
+    <div class="field">
+      <label>Phone Number</label>
+      <input type="tel" id="c-phone" placeholder="+15617824649">
+    </div>
+    <div class="field">
+      <label>Button Position</label>
+      <select id="c-order">
+        <option value="1">1 — Top left</option>
+        <option value="2">2 — Top right</option>
+        <option value="3">3 — Middle left</option>
+        <option value="4">4 — Middle right</option>
+        <option value="5">5 — Bottom left</option>
+        <option value="6">6 — Bottom right</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('contact-modal')">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="delete-contact-btn" onclick="deleteContact()" style="display:none">Delete</button>
+      <button class="btn btn-gold" onclick="saveContact()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://setbeaotudtmpciyivsl.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNldGJlYW90dWR0bXBjaXlpdnNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzNjMxMDMsImV4cCI6MjA5NTkzOTEwM30.rfGvm0blhnU5P2Cl4dM4OuUk0YvbI-M3dFYJRz1tWUw';
+const PWA_BASE = window.location.origin + '/pwa/?t=';
+
+let session = null;
+let familyId = null;
+let lovedOnes = [];
+let selectedLO = null;
+let contacts = [];
+let editingContact = null;
+let editingLO = null;
+let uploadedPhotoUrl = null;
+
+// ── AUTH HELPERS ──────────────────────────────────────────────────────────────
+async function sbAuth(path, body) {
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/${path}`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  return r.json();
+}
+
+async function sbFetch(path, method='GET', body=null, token=null) {
+  const headers = {
+    'apikey': SUPABASE_ANON,
+    'Authorization': `Bearer ${token || session?.access_token || SUPABASE_ANON}`,
+    'Content-Type': 'application/json',
+    'Prefer': method === 'POST' ? 'return=representation' : ''
+  };
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    method, headers, body: body ? JSON.stringify(body) : null
+  });
+  if (r.status === 204) return null;
+  return r.json();
+}
+
+// ── AUTH TAB ──────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0 && tab==='login')||(i===1 && tab==='signup')));
+  document.getElementById('login-form').style.display = tab==='login' ? 'block' : 'none';
+  document.getElementById('signup-form').style.display = tab==='signup' ? 'block' : 'none';
+  setMsg('','');
+}
+
+function setMsg(text, type='') {
+  const el = document.getElementById('auth-msg');
+  el.textContent = text;
+  el.className = 'auth-msg' + (type ? ` ${type}` : '');
+}
+
+// ── SIGN UP ───────────────────────────────────────────────────────────────────
+async function signUp() {
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  if (!name || !email || !password) { setMsg('Please fill in all fields.','error'); return; }
+
+  setMsg('Creating account...');
+  const res = await sbAuth('signup', { email, password });
+  if (res.error) { setMsg(res.error.message,'error'); return; }
+
+  session = res.session || res;
+  if (session?.access_token) {
+    // Create family record
+    await sbFetch('families', 'POST', { email, full_name: name }, session.access_token);
+    await loadDashboard();
+  } else {
+    setMsg('Check your email to confirm your account.','success');
+  }
+}
+
+// ── SIGN IN ───────────────────────────────────────────────────────────────────
+async function signIn() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) { setMsg('Please fill in all fields.','error'); return; }
+
+  setMsg('Signing in...');
+  const res = await sbAuth('token?grant_type=password', { email, password });
+  if (res.error) { setMsg(res.error.message,'error'); return; }
+
+  session = res;
+  await loadDashboard();
+}
+
+function signOut() {
+  session = null; familyId = null;
+  document.getElementById('main-screen').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  switchTab('login');
+}
+
+// ── LOAD DASHBOARD ────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  // Get family record
+  const fam = await sbFetch('families?select=*&limit=1');
+  if (fam && fam[0]) {
+    familyId = fam[0].id;
+    document.getElementById('header-name').textContent = fam[0].full_name;
+  }
+
+  await loadLovedOnes();
+
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('main-screen').style.display = 'block';
+}
+
+// ── LOVED ONES ────────────────────────────────────────────────────────────────
+async function loadLovedOnes() {
+  if (!familyId) return;
+  const res = await sbFetch(`loved_ones?family_id=eq.${familyId}&order=created_at.asc&select=*`);
+  lovedOnes = res || [];
+  renderLovedOnes();
+}
+
+function renderLovedOnes() {
+  const list = document.getElementById('loved-ones-list');
+  if (!lovedOnes.length) {
+    list.innerHTML = '<div class="empty">No one added yet. Click "+ Add Person" to get started.</div>';
+    document.getElementById('contacts-section').style.display = 'none';
+    return;
+  }
+
+  list.innerHTML = lovedOnes.map(lo => `
+    <div class="loved-one-card ${selectedLO?.id===lo.id?'selected':''}" onclick="selectLO('${lo.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="lo-name">${lo.name}</div>
+        <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openEditLO('${lo.id}')">Edit</button>
+      </div>
+      <div class="lo-detail">${lo.button_count} buttons · ${lo.game_package ? 'Game set' : 'No game set'}</div>
+    </div>
+  `).join('');
+}
+
+function selectLO(id) {
+  selectedLO = lovedOnes.find(lo => lo.id === id);
+  renderLovedOnes();
+  loadContacts();
+  document.getElementById('contacts-section').style.display = 'block';
+  document.getElementById('contacts-title').textContent = `${selectedLO.name}'s Contacts`;
+  document.getElementById('device-link-box').textContent = PWA_BASE + selectedLO.device_token;
+}
+
+// ── ADD / EDIT LOVED ONE ──────────────────────────────────────────────────────
+function openAddLO() {
+  editingLO = null;
+  document.getElementById('lo-modal-title').textContent = 'Add a Loved One';
+  document.getElementById('lo-name').value = '';
+  document.getElementById('lo-greeting').value = '';
+  document.getElementById('lo-buttons').value = '6';
+  document.getElementById('lo-game').value = '';
+  openModal('lo-modal');
+}
+
+function openEditLO(id) {
+  editingLO = lovedOnes.find(lo => lo.id === id);
+  document.getElementById('lo-modal-title').textContent = 'Edit ' + editingLO.name;
+  document.getElementById('lo-name').value = editingLO.name;
+  document.getElementById('lo-greeting').value = editingLO.greeting_name || '';
+  document.getElementById('lo-buttons').value = editingLO.button_count;
+  document.getElementById('lo-game').value = editingLO.game_package || '';
+  openModal('lo-modal');
+}
+
+async function saveLO() {
+  const data = {
+    name: document.getElementById('lo-name').value.trim(),
+    greeting_name: document.getElementById('lo-greeting').value.trim() || null,
+    button_count: parseInt(document.getElementById('lo-buttons').value),
+    game_package: document.getElementById('lo-game').value.trim() || null,
+    updated_at: new Date().toISOString()
+  };
+  if (!data.name) return;
+
+  if (editingLO) {
+    await sbFetch(`loved_ones?id=eq.${editingLO.id}`, 'PATCH', data);
+  } else {
+    data.family_id = familyId;
+    await sbFetch('loved_ones', 'POST', data);
+  }
+
+  closeModal('lo-modal');
+  await loadLovedOnes();
+  if (selectedLO) selectLO(selectedLO.id);
+}
+
+// ── CONTACTS ──────────────────────────────────────────────────────────────────
+async function loadContacts() {
+  if (!selectedLO) return;
+  const res = await sbFetch(`contacts?loved_one_id=eq.${selectedLO.id}&order=display_order.asc&select=*`);
+  contacts = res || [];
+  renderContacts();
+}
+
+function renderContacts() {
+  const list = document.getElementById('contacts-list');
+  if (!contacts.length) {
+    list.innerHTML = '<div class="empty">No contacts yet. Add some above.</div>';
+    return;
+  }
+
+  list.innerHTML = contacts.map(c => `
+    <div class="contact-row">
+      <div class="contact-thumb">
+        ${c.photo_url ? `<img src="${c.photo_url}" alt="${c.name}">` : (c.name||'?')[0].toUpperCase()}
+      </div>
+      <div class="contact-info">
+        <div class="cn">${c.name}</div>
+        ${c.relationship ? `<div class="cr">${c.relationship}</div>` : ''}
+        <div class="cp">${c.phone}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-outline btn-sm" onclick="openEditContact('${c.id}')">Edit</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── ADD / EDIT CONTACT ────────────────────────────────────────────────────────
+function openAddContact() {
+  editingContact = null;
+  uploadedPhotoUrl = null;
+  document.getElementById('contact-modal-title').textContent = 'Add Contact';
+  document.getElementById('c-name').value = '';
+  document.getElementById('c-rel').value = '';
+  document.getElementById('c-phone').value = '';
+  document.getElementById('c-order').value = (contacts.length + 1).toString();
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('photo-placeholder').style.display = 'flex';
+  document.getElementById('delete-contact-btn').style.display = 'none';
+  openModal('contact-modal');
+}
+
+function openEditContact(id) {
+  editingContact = contacts.find(c => c.id === id);
+  uploadedPhotoUrl = editingContact.photo_url || null;
+  document.getElementById('contact-modal-title').textContent = 'Edit ' + editingContact.name;
+  document.getElementById('c-name').value = editingContact.name;
+  document.getElementById('c-rel').value = editingContact.relationship || '';
+  document.getElementById('c-phone').value = editingContact.phone;
+  document.getElementById('c-order').value = editingContact.display_order;
+  document.getElementById('delete-contact-btn').style.display = 'inline-block';
+
+  if (editingContact.photo_url) {
+    document.getElementById('photo-preview').src = editingContact.photo_url;
+    document.getElementById('photo-preview').style.display = 'block';
+    document.getElementById('photo-placeholder').style.display = 'none';
+  } else {
+    document.getElementById('photo-preview').style.display = 'none';
+    document.getElementById('photo-placeholder').style.display = 'flex';
+  }
+
+  openModal('contact-modal');
+}
+
+function previewPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('photo-preview').src = e.target.result;
+    document.getElementById('photo-preview').style.display = 'block';
+    document.getElementById('photo-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+  uploadPhoto(file);
+}
+
+async function uploadPhoto(file) {
+  const ext = file.name.split('.').pop();
+  const path = `${familyId}/${selectedLO.id}/${Date.now()}.${ext}`;
+  const r = await fetch(`${SUPABASE_URL}/storage/v1/object/contact-photos/${path}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_ANON,
+      'Authorization': `Bearer ${session.access_token}`,
+      'Content-Type': file.type
+    },
+    body: file
+  });
+  const res = await r.json();
+  if (res.Key) {
+    uploadedPhotoUrl = `${SUPABASE_URL}/storage/v1/object/public/contact-photos/${path}`;
+  }
+}
+
+async function saveContact() {
+  const data = {
+    loved_one_id: selectedLO.id,
+    name: document.getElementById('c-name').value.trim(),
+    relationship: document.getElementById('c-rel').value.trim() || null,
+    phone: document.getElementById('c-phone').value.trim(),
+    display_order: parseInt(document.getElementById('c-order').value),
+    photo_url: uploadedPhotoUrl || null,
+    updated_at: new Date().toISOString()
+  };
+  if (!data.name || !data.phone) return;
+
+  if (editingContact) {
+    await sbFetch(`contacts?id=eq.${editingContact.id}`, 'PATCH', data);
+  } else {
+    await sbFetch('contacts', 'POST', data);
+  }
+
+  closeModal('contact-modal');
+  loadContacts();
+}
+
+async function deleteContact() {
+  if (!editingContact) return;
+  if (!confirm(`Remove ${editingContact.name}?`)) return;
+  await sbFetch(`contacts?id=eq.${editingContact.id}`, 'DELETE');
+  closeModal('contact-modal');
+  loadContacts();
+}
+
+// ── CONTACT PICKER API ────────────────────────────────────────────────────────
+async function openContactPicker() {
+  if (!('contacts' in navigator)) {
+    alert('Contact picker not supported on this device. Please add contacts manually.');
+    return;
+  }
+  try {
+    const picked = await navigator.contacts.select(['name','tel','photo'], { multiple: true });
+    for (const p of picked) {
+      const name = p.name?.[0] || 'Unknown';
+      const phone = p.tel?.[0] || '';
+      if (phone) {
+        await sbFetch('contacts', 'POST', {
+          loved_one_id: selectedLO.id,
+          name, phone,
+          display_order: contacts.length + 1,
+          updated_at: new Date().toISOString()
+        });
+      }
+    }
+    loadContacts();
+  } catch(e) {
+    alert('Could not open contacts: ' + e.message);
+  }
+}
+
+// ── COPY DEVICE LINK ──────────────────────────────────────────────────────────
+function copyDeviceLink() {
+  const link = PWA_BASE + selectedLO.device_token;
+  navigator.clipboard.writeText(link).then(() => alert('Link copied!'));
+}
+
+// ── MODALS ────────────────────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Close modal on background click
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+});
+
+// ── CHECK EXISTING SESSION ────────────────────────────────────────────────────
+const stored = localStorage.getItem('kc_session');
+if (stored) {
+  try {
+    session = JSON.parse(stored);
+    loadDashboard();
+  } catch(e) {}
+}
+</script>
+</body>
+</html>
